@@ -11,8 +11,6 @@
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />
 
-
-    <access origin="*" />
     <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
         <application android:usesCleartextTraffic="true" />
     </edit-config>

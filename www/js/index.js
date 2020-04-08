@@ -353,20 +353,7 @@ var app = {
                 loader.classList.add('in');
             }
         }
-    }//,
-    // showReload: function() {
-    //     app.stopLoader();
-    //     var button = document.querySelector(".reload-button");
-    //     if(button) button.classList.remove("d-none");
-    // },
-    // hideReload: function() {
-    //     var button = document.querySelector(".reload-button");
-    //     if(button) button.classList.add("d-none");
-    // },
-    // reload: function() {
-    //     app.log("Reload requested");
-    //     app.getWifiScanResults();
-    // }
+    }
 };
 
 app.initialize();
