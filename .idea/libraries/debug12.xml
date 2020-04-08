@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="debug1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/platforms/android/app/build/intermediates/transforms/dexBuilder/debug/0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/platforms/android/app/build/intermediates/transforms/dexBuilder/debug/1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/platforms/android/app/build/intermediates/transforms/dexBuilder/debug/3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/platforms/android/app/build/intermediates/transforms/dexBuilder/debug/2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

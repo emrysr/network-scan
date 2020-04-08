@@ -1,1 +1,1 @@
-{"plugins":["cordova-plugin-whitelist"]}
+{"plugins":["cordova-plugin-whitelist","cordova-plugin-network-information","wifiwizard2","es6-promise-plugin"]}

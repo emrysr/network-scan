@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run android on emulator",
+            "type": "cordova",
+            "request": "launch",
+            "platform": "android",
+            "target": "emulator",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}"
+        },
+        {
             "name": "Run android on device",
             "type": "cordova",
             "request": "launch",
@@ -12,6 +21,17 @@
             "target": "device",
             "sourceMaps": true,
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Simulate android in browser",
+            "type": "cordova",
+            "request": "launch",
+            "platform": "android",
+            "target": "chromium",
+            "simulatePort": 8000,
+            "livereload": true,
+            "cwd": "${workspaceFolder}",
+            "sourceMaps": true
         }
     ]
 }

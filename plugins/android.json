@@ -8,8 +8,18 @@
   },
   "installed_plugins": {
     "cordova-plugin-whitelist": {
-      "PACKAGE_NAME": "io.cordova.hellocordova"
+      "PACKAGE_NAME": "io.cordova.networkdevices"
+    },
+    "cordova-plugin-network-information": {
+      "PACKAGE_NAME": "io.cordova.networkdevices"
+    },
+    "wifiwizard2": {
+      "PACKAGE_NAME": "io.cordova.networkdevices"
     }
   },
-  "dependent_plugins": {}
+  "dependent_plugins": {
+    "es6-promise-plugin": {
+      "PACKAGE_NAME": "io.cordova.networkdevices"
+    }
+  }
 }
