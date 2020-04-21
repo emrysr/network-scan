@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Attach to android on device",
+            "type": "cordova",
+            "request": "attach",
+            "platform": "android",
+            "target": "device",
+            "cwd": "${workspaceFolder}",
+            "sourceMaps": true
+        },
+        {
             "name": "Run android on emulator",
             "type": "cordova",
             "request": "launch",

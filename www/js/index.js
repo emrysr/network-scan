@@ -17,7 +17,6 @@
  * under the License.
  */
 var app = {
-
     /**
      * DATA
      */
@@ -56,8 +55,10 @@ var app = {
         document.addEventListener("reload", this.reload, false);
         document.addEventListener("offline", this.onOffline, false);
         document.addEventListener("online", this.onOnline, false);
-        document.addEventListener("details", this.details, false);
+        document.addEventListener("details", this.onMoreInfo, false);
         document.addEventListener("click", this.abort, false);
+        
+        app.displayResults(app.getSavedResults());
 
         // handle all clicks on document
         document.addEventListener('click', function (event) {
@@ -70,8 +71,8 @@ var app = {
                 app.abortSearch();
             } else if (event.target.classList.contains('list_item') || parent_list_item) {
                 event.preventDefault();
-                var hash = (parent_list_item && parent_list_item.hash) ? parent_list_item.hash: event.target.hash;
-                document.dispatchEvent(new CustomEvent('details', {detail: hash}));
+                var href = (parent_list_item && parent_list_item.href) ? parent_list_item.href: event.target.href;
+                document.dispatchEvent(new CustomEvent('details', {detail: href}));
             } else {
                 // no matches. carry on as normal..
             }
@@ -111,6 +112,11 @@ var app = {
         document.body.classList.toggle('online', app.online);
         app.showIpAddress();
     },
+    // open web browser window with emoncms interface
+    onMoreInfo: function(event) {
+        url = event.detail;
+        var ref = window.open(url,'_blank', 'location=yes');
+    },
     showIpAddress: function() {
         this.trace();
         const container = document.getElementById("ip-address");
@@ -142,31 +148,40 @@ var app = {
         if(app.abortBtn) app.abortBtn.classList.remove("d-none");
         app.findAll()
             .then(function(responses) {
-                const results = responses.filter(v=>v);
-                const list = document.getElementById("list");
+                const results = responses.filter(Boolean);
                 app.log(`Found ${results.length}`);
                 if(results.length>0) {
-                    const list_item = document.createElement("a");
-                    list.innerHTML = "";
-                    results.forEach(node=> {
-                        var item = list_item.cloneNode();
-                        item.classList.add('list_item');
-                        try {
-                            item.innerHTML = `${node.response}<small class="badge text-muted">${node.ip}</small>`;
-                        } catch (error) {
-                            throw "Returned data is not well formed"
-                        }
-                        list.append(item);
-                    })
+                    app.saveResults(results);
+                    app.displayResults(results);
                 } else {
-                    list.innerHTML = "None Found";
+                    const list = document.getElementById("list");
+                    list.innerHTML = '<div class="alert"><h4>0 Results</h4><p>Please ensure the device is connected to the network before re-trying.</p></div>';
+                    app.startBtn.innerText = 'Retry';
                 }
-
             })
-            // .catch(error=>{console.error(error)})
+            .catch(error=>console.error(error))
             .finally(()=>{
                 app.endSearch();
             })
+    },
+    displayResults: function(results) {
+        if (!results) return;
+        const list = document.getElementById("list");
+        const list_item = document.createElement("a");
+        list.innerHTML = "";
+        results.forEach(node=> {
+            if(!node) return;
+            var item = list_item.cloneNode();
+            item.classList.add('list_item');
+            try {
+                item.innerHTML = `${node.response}<small class="badge text-muted">${node.ip}</small>`;
+            } catch (error) {
+                console.error(error);
+            }
+            item.href=`http://${node.ip}/`;
+            if (node.response==='emoncms') item.href=`http://${node.ip}/emoncms`;
+            list.append(item);
+        });
     },
     abortSearch: function() {
         app.trace();
@@ -196,6 +211,25 @@ var app = {
         return Promise.all(allRequests)
             .then(response=>response)
             .catch(error=>error);
+
+    },
+    saveResults: function(results) {
+        var storage = window.localStorage;
+        storage.setItem('results', JSON.stringify(results));
+        storage.setItem('results_age', new Date().valueOf());
+    },
+    getSavedResults: function(){
+        var storage = window.localStorage;
+        var age = parseInt(storage.getItem('results_age')) || new Date().valueOf();
+        var ttl = 30 * 60 * 1000; // 30mins in ms
+        var results = [];
+        // if cache not expired load values
+        if(age + ttl > new Date().valueOf()){
+            results = storage.getItem('results');
+            if (results) results = JSON.parse(results);
+            if (results) results = results.unique();
+        }
+        return results;
     },
     /**
      * test emoncms response for given ip address
@@ -207,8 +241,12 @@ var app = {
      */
     ping: function(ip) {
         if (typeof ip === "undefined") throw "No IP address given";
-        const url = `http://${ip}/emoncms/describe.json`;
-        return timeout(fetch(url, {signal: app.abortAllSearches.signal}), 2000)
+        const url = `http://${ip}/emoncms/describe`;
+        const options = {
+            signal: app.abortAllSearches.signal,
+            xcors: "no-cors"
+        }
+        return timeout(fetch(url, options), 2000)
             .then(response=> {
                 // throw error if response code not in the 200's...
                 if (!response.ok) {
@@ -218,11 +256,11 @@ var app = {
             })
             .then(response=> {
                 // if response is well formed json, parse it and return.
-                try {
+                if(response.headers.get('content-type')==='application/json') {
                     return response.json().then(text=>{
                         return {ip:ip, response:text}
                     });
-                } catch(error) {
+                } else {
                 // if not "application/json", read as "text/plain"
                     return response.text().then(text=>{
                         return {ip:ip, response:text}
@@ -279,8 +317,8 @@ var app = {
      * defaults `app.ip_range_start` and `app.ip_range_end` if `start` and `end` not set
      * else defaults to full range (`start`=1 and `end`=254)
      * eg. ["192.168.1.1","192.168.1.2","192.168.1.3","192.168.1.4",...]
-     * @param {Number} start ipv4 last octet first value in decimal
-     * @param {Number} end ipv4 last octet last value in decimal
+     * @param {Number} start ipv4 last octet value in decimal
+     * @param {Number} end ipv4 last octet value in decimal
      * @returns {Array} 
      */
     getIpRange: function(start, end) {
@@ -416,3 +454,18 @@ function timeout(promise, ms) {
     })
 }
 
+Object.defineProperty(Array.prototype, 'unique', {
+    enumerable: false,
+    configurable: false,
+    writable: false,
+    value: function() {
+        var a = this.concat();
+        for(var i=0; i<a.length; ++i) {
+            for(var j=i+1; j<a.length; ++j) {
+                if(a[i] === a[j])
+                    a.splice(j--, 1);
+            }
+        }
+        return a;
+    }
+});

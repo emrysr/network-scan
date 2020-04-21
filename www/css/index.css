@@ -180,6 +180,29 @@ h1 {
     content:none;
     animation: none;
 }
+.alert{
+    text-align: center;
+    color: #00b89c;
+    padding: 1em;
+    border: 1px solid #00d1b2;
+    border-radius: .3em;
+    background-color: #fff6;
+}
+.alert h4 {
+    margin: 0;
+    padding: 0 0 .5em 0;
+    font-size: larger;
+    font-weight: normal;
+    color: #7a7a7a;
+}
+.alert p {
+    margin: 0;
+    padding: 0;
+    font-weight: lighter;
+}
+.alert p:last-of-type {
+    padding-bottom: .3em;
+}
 @keyframes loading {
     0% {content: ""} 20% {content: "."} 40% {content: ".."} 80% {content: "..."}
 }
