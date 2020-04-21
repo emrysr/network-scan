@@ -244,7 +244,7 @@ var app = {
         const url = `http://${ip}/emoncms/describe`;
         const options = {
             signal: app.abortAllSearches.signal,
-            xcors: "no-cors"
+            cors: "cors"
         }
         return timeout(fetch(url, options), 2000)
             .then(response=> {
